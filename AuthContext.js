@@ -3,11 +3,10 @@ import React, { createContext, useContext, useState } from 'react';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // Could be user object or null
+  const [user, setUser] = useState(null);
 
-  const signIn = (email, password) => {
-    // Implement actual sign-in logic here (e.g., API call)
-    // For now, a mock sign-in
+  const signIn = async (email, password) => {
+    // Mock sign-in - in production, call your API
     if (email === 'test@example.com' && password === 'password') {
       setUser({ email });
       return true;
@@ -15,9 +14,8 @@ export const AuthProvider = ({ children }) => {
     return false;
   };
 
-  const signUp = (email, password) => {
-    // Implement actual sign-up logic here (e.g., API call)
-    // For now, a mock sign-up
+  const signUp = async (email, password) => {
+    // Mock sign-up - in production, call your API
     setUser({ email }); // Automatically sign in after sign up
     return true;
   };
