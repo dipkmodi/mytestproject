@@ -1,37 +1,40 @@
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useAuth } from '../../AuthContext';
 
 export default function SignupScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { signUp } = useAuth();
+  const { signUp, error: authError } = useAuth();
 
   const handleSignup = async () => {
     if (!email || !password || !confirmPassword) {
-      setError('Please fill in all fields');
       return;
     }
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
       return;
     }
+    setLoading(true);
     const success = await signUp(email, password);
+    setLoading(false);
     if (success) {
       router.replace('/(tabs)');
-    } else {
-      setError('Something went wrong during signup.');
     }
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Sign Up</Text>
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {authError ? <Text style={styles.error}>{authError}</Text> : null}
+      {!password || password !== confirmPassword ? (
+        password && confirmPassword ? (
+          <Text style={styles.error}>Passwords do not match</Text>
+        ) : null
+      ) : null}
       <TextInput
         style={styles.input}
         placeholder="Email"
@@ -39,6 +42,7 @@ export default function SignupScreen() {
         onChangeText={setEmail}
         keyboardType="email-address"
         autoCapitalize="none"
+        editable={!loading}
       />
       <TextInput
         style={styles.input}
@@ -46,6 +50,7 @@ export default function SignupScreen() {
         value={password}
         onChangeText={setPassword}
         secureTextEntry
+        editable={!loading}
       />
       <TextInput
         style={styles.input}
@@ -53,11 +58,16 @@ export default function SignupScreen() {
         value={confirmPassword}
         onChangeText={setConfirmPassword}
         secureTextEntry
+        editable={!loading}
       />
-      <TouchableOpacity style={styles.button} onPress={handleSignup}>
-        <Text style={styles.buttonText}>Sign Up</Text>
+      <TouchableOpacity style={styles.button} onPress={handleSignup} disabled={loading || password !== confirmPassword}>
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.buttonText}>Sign Up</Text>
+        )}
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => router.push('/auth/login')}>
+      <TouchableOpacity onPress={() => router.push('/auth/login')} disabled={loading}>
         <Text style={styles.link}>Already have an account? Login</Text>
       </TouchableOpacity>
     </View>
@@ -106,5 +116,7 @@ const styles = StyleSheet.create({
   error: {
     color: '#FF3B30',
     marginBottom: 15,
+    textAlign: 'center',
+    fontSize: 14,
   },
 });

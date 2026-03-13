@@ -1,32 +1,31 @@
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useAuth } from '../../AuthContext';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { signIn } = useAuth();
+  const { signIn, error: authError } = useAuth();
 
   const handleLogin = async () => {
     if (!email || !password) {
-      setError('Please fill in all fields');
       return;
     }
+    setLoading(true);
     const success = await signIn(email, password);
+    setLoading(false);
     if (success) {
       router.replace('/(tabs)');
-    } else {
-      setError('Invalid email or password');
     }
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {authError ? <Text style={styles.error}>{authError}</Text> : null}
       <TextInput
         style={styles.input}
         placeholder="Email"
@@ -34,6 +33,7 @@ export default function LoginScreen() {
         onChangeText={setEmail}
         keyboardType="email-address"
         autoCapitalize="none"
+        editable={!loading}
       />
       <TextInput
         style={styles.input}
@@ -41,11 +41,16 @@ export default function LoginScreen() {
         value={password}
         onChangeText={setPassword}
         secureTextEntry
+        editable={!loading}
       />
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Login</Text>
+      <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.buttonText}>Login</Text>
+        )}
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => router.push('/auth/signup')}>
+      <TouchableOpacity onPress={() => router.push('/auth/signup')} disabled={loading}>
         <Text style={styles.link}>Don't have an account? Sign Up</Text>
       </TouchableOpacity>
     </View>
@@ -94,5 +99,7 @@ const styles = StyleSheet.create({
   error: {
     color: '#FF3B30',
     marginBottom: 15,
+    textAlign: 'center',
+    fontSize: 14,
   },
 });
