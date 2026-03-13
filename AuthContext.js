@@ -25,10 +25,11 @@ if (AUTH_MODE === 'firebase') {
 
 const AuthContext = createContext();
 
-// Mock user database (only for testing)
+// Mock user database (only for testing) - using userId and password
 const mockUsers = {
-  'test@example.com': 'password123',
-  'demo@example.com': 'demo123',
+  'user123': 'password123',
+  'demo_user': 'demo123',
+  'john_doe': 'john@123',
 };
 
 export const AuthProvider = ({ children }) => {
@@ -50,7 +51,7 @@ export const AuthProvider = ({ children }) => {
         if (firebaseUser) {
           setUser({
             uid: firebaseUser.uid,
-            email: firebaseUser.email,
+            userId: firebaseUser.displayName || firebaseUser.email.split('@')[0],
           });
         } else {
           setUser(null);
@@ -63,31 +64,33 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const signUp = async (email, password) => {
+  const signUp = async (userId, password) => {
     try {
       setError(null);
 
       if (AUTH_MODE === 'mock') {
-        if (mockUsers[email]) {
-          setError('Email already registered. Try another email.');
+        if (mockUsers[userId]) {
+          setError('User ID already registered. Try another user ID.');
           return false;
         }
-        mockUsers[email] = password;
-        const userData = { uid: Date.now().toString(), email };
+        mockUsers[userId] = password;
+        const userData = { uid: Date.now().toString(), userId };
         setUser(userData);
         if (typeof localStorage !== 'undefined') {
           localStorage.setItem('mockAuthUser', JSON.stringify(userData));
         }
         return true;
       } else if (AUTH_MODE === 'firebase' && firebaseImports) {
+        // For Firebase: Create user with userId@app.local as email
+        const userEmail = `${userId}@app.local`;
         const userCredential = await firebaseImports.createUserWithEmailAndPassword(
           firebaseImports.auth,
-          email,
+          userEmail,
           password
         );
         setUser({
           uid: userCredential.user.uid,
-          email: userCredential.user.email,
+          userId: userId,
         });
         return true;
       }
@@ -99,30 +102,31 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const signIn = async (email, password) => {
+  const signIn = async (userId, password) => {
     try {
       setError(null);
 
       if (AUTH_MODE === 'mock') {
-        if (mockUsers[email] && mockUsers[email] === password) {
-          const userData = { uid: Date.now().toString(), email };
+        if (mockUsers[userId] && mockUsers[userId] === password) {
+          const userData = { uid: Date.now().toString(), userId };
           setUser(userData);
           if (typeof localStorage !== 'undefined') {
             localStorage.setItem('mockAuthUser', JSON.stringify(userData));
           }
           return true;
         }
-        setError('Invalid email or password');
+        setError('Invalid user ID or password');
         return false;
       } else if (AUTH_MODE === 'firebase' && firebaseImports) {
+        const userEmail = `${userId}@app.local`;
         const userCredential = await firebaseImports.signInWithEmailAndPassword(
           firebaseImports.auth,
-          email,
+          userEmail,
           password
         );
         setUser({
           uid: userCredential.user.uid,
-          email: userCredential.user.email,
+          userId: userId,
         });
         return true;
       }

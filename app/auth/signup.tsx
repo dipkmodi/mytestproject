@@ -4,7 +4,7 @@ import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View 
 import { useAuth } from '../../AuthContext';
 
 export default function SignupScreen() {
-  const [email, setEmail] = useState('');
+  const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -12,14 +12,14 @@ export default function SignupScreen() {
   const { signUp, error: authError } = useAuth();
 
   const handleSignup = async () => {
-    if (!email || !password || !confirmPassword) {
+    if (!userId || !password || !confirmPassword) {
       return;
     }
     if (password !== confirmPassword) {
       return;
     }
     setLoading(true);
-    const success = await signUp(email, password);
+    const success = await signUp(userId, password);
     setLoading(false);
     if (success) {
       router.replace('/(tabs)');
@@ -37,10 +37,9 @@ export default function SignupScreen() {
       ) : null}
       <TextInput
         style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
+        placeholder="User ID"
+        value={userId}
+        onChangeText={setUserId}
         autoCapitalize="none"
         editable={!loading}
       />

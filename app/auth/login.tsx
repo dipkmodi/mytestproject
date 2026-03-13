@@ -4,18 +4,18 @@ import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View 
 import { useAuth } from '../../AuthContext';
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('');
+  const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { signIn, error: authError } = useAuth();
 
   const handleLogin = async () => {
-    if (!email || !password) {
+    if (!userId || !password) {
       return;
     }
     setLoading(true);
-    const success = await signIn(email, password);
+    const success = await signIn(userId, password);
     setLoading(false);
     if (success) {
       router.replace('/(tabs)');
@@ -28,10 +28,9 @@ export default function LoginScreen() {
       {authError ? <Text style={styles.error}>{authError}</Text> : null}
       <TextInput
         style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
+        placeholder="User ID"
+        value={userId}
+        onChangeText={setUserId}
         autoCapitalize="none"
         editable={!loading}
       />

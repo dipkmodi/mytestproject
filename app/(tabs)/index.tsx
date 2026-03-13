@@ -15,7 +15,7 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Welcome!</Text>
       <Text style={styles.subtitle}>You are logged in as:</Text>
-      <Text style={styles.email}>{user?.email}</Text>
+      <Text style={styles.userId}>{user?.userId}</Text>
       <TouchableOpacity style={styles.button} onPress={handleSignOut}>
         <Text style={styles.buttonText}>Sign Out</Text>
       </TouchableOpacity>
@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     color: '#666',
     marginBottom: 10,
   },
-  email: {
+  userId: {
     fontSize: 18,
     fontWeight: '600',
     marginBottom: 30,
